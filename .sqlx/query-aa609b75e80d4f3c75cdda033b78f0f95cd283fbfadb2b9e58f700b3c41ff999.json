@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO events (actor_id, kind, url, referrer, search)\n         VALUES (?, ?, ?, ?, ?)\n         RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "aa609b75e80d4f3c75cdda033b78f0f95cd283fbfadb2b9e58f700b3c41ff999"
+}
