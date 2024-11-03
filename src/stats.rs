@@ -177,19 +177,53 @@ async fn handler(State(state): State<AppState>) -> impl IntoResponse {
         .fetch_one(&state.pool)
         .await
         .unwrap();
+
+    let toggle = r#"
+        <h1>Analytics Toggle</h1>
+        <p>This button will toggle whether analytics are ignored for this page.</p>
+        <ul style="list-style: none">
+            <li>
+                <button id="toggleButton">Toggle Analytics Ignore</button>
+            </li>
+            <li>
+            <div id="message"></div>
+            </li>
+        </ul>
+        <script>
+        function updateDisplay() {
+            const messageDiv = document.getElementById('message');
+            const toggleButton = document.getElementById('toggleButton');
+
+            if (localStorage.analytics_ignore === 'true') {
+                messageDiv.textContent = "Analytics are currently ignored.";
+                toggleButton.textContent = "Disable Analytics Ignore";
+            } else {
+                messageDiv.textContent = "Analytics are active.";
+                toggleButton.textContent = "Enable Analytics Ignore";
+            }
+        }
+
+        document.getElementById('toggleButton').addEventListener('click', () => {
+            if (localStorage.analytics_ignore === 'true') {
+                localStorage.removeItem('analytics_ignore');
+            } else {
+                localStorage.analytics_ignore = 'true';
+            }
+            updateDisplay();
+        });
+        updateDisplay();
+        </script>
+        "#;
     Html(format!(
         r#"
 <html>
-    <head>
-        <script defer data-domain="domain.test" src="/stats/script.js"></script>
-    </head>
-
     <body>
-        <h1>Test</h1>
+        <h1>Summary</h1>
         <ul>
-            <li>Users: {visitors}</li>
+            <li>Visitors: {visitors}</li>
             <li>Pageviews: {pageviews}</li>
         </ul>
+{toggle}
     </body>
 </html>
     "#
