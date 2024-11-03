@@ -1,6 +1,6 @@
 use crate::crypto::{get_cryptographic_key, rotate_cryptographic_key};
 use crate::{database, geo_locate::geoip_lookup};
-use axum::extract::ConnectInfo;
+use axum::extract::{ConnectInfo, Path};
 use axum::extract::{Json, State};
 use axum::{
     response::IntoResponse,
@@ -208,6 +208,7 @@ pub fn get_stats_router(
     let router = Router::new()
         .route("/script.js", get(stats_handler))
         .route("/event", post(event_handler))
+        .route("/*key", get(handler))
         .with_state(AppState {
             analytics_secret,
             db_path: geo_db_path,
@@ -215,4 +216,8 @@ pub fn get_stats_router(
         });
 
     (router, rotate_stats_key_task)
+}
+
+async fn handler(Path(path): Path<String>) -> String {
+    path
 }

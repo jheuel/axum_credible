@@ -5,7 +5,7 @@ mod signal;
 mod stats;
 
 use axum::{
-    extract::State,
+    extract::{Path, State},
     response::{Html, IntoResponse},
     routing::get,
     Router,
@@ -47,8 +47,9 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
 
     let state = AppState { pool };
     let app = Router::new()
-        .route("/", get(handler))
         .nest_service("/stats", stats_router)
+        .route("/", get(handler_root))
+        .route("/*key", get(handler))
         .with_state(state);
 
     let host = "0.0.0.0";
@@ -66,7 +67,11 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     Ok(())
 }
 
-async fn handler(State(state): State<AppState>) -> impl IntoResponse {
+async fn handler_root(State(state): State<AppState>) -> impl IntoResponse {
+    handler(Path("/".to_string()), State(state)).await
+}
+
+async fn handler(Path(path): Path<String>, State(state): State<AppState>) -> impl IntoResponse {
     let visitors = query_scalar!("SELECT COUNT(id) FROM actors")
         .fetch_one(&state.pool)
         .await
@@ -85,6 +90,7 @@ async fn handler(State(state): State<AppState>) -> impl IntoResponse {
     <body>
         <h1>Test</h1>
         <ul>
+            <li>Path: {path}</li>
             <li>Users: {visitors}</li>
             <li>Pageviews: {pageviews}</li>
         </ul>
