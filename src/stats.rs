@@ -1,7 +1,8 @@
 use crate::crypto::{get_cryptographic_key, rotate_cryptographic_key};
 use crate::{database, geo_locate::geoip_lookup};
-use axum::extract::{ConnectInfo, Path};
+use axum::extract::ConnectInfo;
 use axum::extract::{Json, State};
+use axum::response::Html;
 use axum::{
     response::IntoResponse,
     routing::{get, post},
@@ -9,6 +10,7 @@ use axum::{
 };
 use chrono::{Datelike, TimeZone};
 use http::{HeaderMap, StatusCode};
+use sqlx::query_scalar;
 use std::error::Error;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
@@ -166,6 +168,34 @@ async fn event_handler(
     StatusCode::OK
 }
 
+async fn handler(State(state): State<AppState>) -> impl IntoResponse {
+    let visitors = query_scalar!("SELECT COUNT(id) FROM actors")
+        .fetch_one(&state.pool)
+        .await
+        .unwrap();
+    let pageviews = query_scalar!("SELECT COUNT(id) FROM events")
+        .fetch_one(&state.pool)
+        .await
+        .unwrap();
+    Html(format!(
+        r#"
+<html>
+    <head>
+        <script defer data-domain="domain.test" src="/stats/script.js"></script>
+    </head>
+
+    <body>
+        <h1>Test</h1>
+        <ul>
+            <li>Users: {visitors}</li>
+            <li>Pageviews: {pageviews}</li>
+        </ul>
+    </body>
+</html>
+    "#
+    ))
+}
+
 pub fn get_stats_router(
     pool: &sqlx::SqlitePool,
     analytics_key: &str,
@@ -208,7 +238,7 @@ pub fn get_stats_router(
     let router = Router::new()
         .route("/script.js", get(stats_handler))
         .route("/event", post(event_handler))
-        .route("/*key", get(handler))
+        .route("/summary", get(handler))
         .with_state(AppState {
             analytics_secret,
             db_path: geo_db_path,
@@ -216,8 +246,4 @@ pub fn get_stats_router(
         });
 
     (router, rotate_stats_key_task)
-}
-
-async fn handler(Path(path): Path<String>) -> String {
-    path
 }

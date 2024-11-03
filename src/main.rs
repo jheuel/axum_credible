@@ -4,24 +4,13 @@ mod geo_locate;
 mod signal;
 mod stats;
 
-use axum::{
-    extract::{Path, State},
-    response::{Html, IntoResponse},
-    routing::get,
-    Router,
-};
+use axum::Router;
 use database::init_db_pool;
 use dotenvy::dotenv;
 use geo_locate::download_geo_db;
 use signal::shutdown_signal;
-use sqlx::{pool, query_scalar};
 use stats::get_stats_router;
 use std::{error::Error, net::SocketAddr};
-
-#[derive(Clone)]
-struct AppState {
-    pool: pool::Pool<sqlx::Sqlite>,
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
@@ -45,12 +34,7 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     // Get the stats router and key rotation handle
     let (stats_router, key_rotate_handle) = get_stats_router(&pool, &analytics_key, &geo_db_path);
 
-    let state = AppState { pool };
-    let app = Router::new()
-        .nest_service("/stats", stats_router)
-        .route("/", get(handler_root))
-        .route("/*key", get(handler))
-        .with_state(state);
+    let app = Router::new().nest_service("/stats", stats_router);
 
     let host = "0.0.0.0";
     let port = "3000";
@@ -65,37 +49,4 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     .with_graceful_shutdown(shutdown_signal(key_rotate_handle.abort_handle()))
     .await?;
     Ok(())
-}
-
-async fn handler_root(State(state): State<AppState>) -> impl IntoResponse {
-    handler(Path("/".to_string()), State(state)).await
-}
-
-async fn handler(Path(path): Path<String>, State(state): State<AppState>) -> impl IntoResponse {
-    let visitors = query_scalar!("SELECT COUNT(id) FROM actors")
-        .fetch_one(&state.pool)
-        .await
-        .unwrap();
-    let pageviews = query_scalar!("SELECT COUNT(id) FROM events")
-        .fetch_one(&state.pool)
-        .await
-        .unwrap();
-    Html(format!(
-        r#"
-<html>
-    <head>
-        <script defer data-domain="domain.test" src="/stats/script.js"></script>
-    </head>
-
-    <body>
-        <h1>Test</h1>
-        <ul>
-            <li>Path: {path}</li>
-            <li>Users: {visitors}</li>
-            <li>Pageviews: {pageviews}</li>
-        </ul>
-    </body>
-</html>
-    "#
-    ))
 }
