@@ -2,7 +2,7 @@ use sqlx::{
     query,
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     types::time::OffsetDateTime,
-    Pool, Sqlite, SqlitePool,
+    Pool, Row, Sqlite, SqlitePool,
 };
 use std::convert::From;
 use std::str::FromStr;
@@ -78,14 +78,14 @@ pub async fn init_db_pool(db_url: &str) -> Result<Pool<Sqlite>, sqlx::Error> {
 }
 
 pub async fn store_actor(pool: &SqlitePool, actor: &Actor) -> Result<(), sqlx::Error> {
-    query!(
+    query(
         "INSERT OR IGNORE INTO actors (id, country, city, user_agent_id)
         VALUES (?, ?, ?, ?)",
-        actor.id,
-        actor.country,
-        actor.city,
-        actor.user_agent_id,
     )
+    .bind(actor.id.clone())
+    .bind(actor.country.clone())
+    .bind(actor.city.clone())
+    .bind(actor.user_agent_id)
     .execute(pool)
     .await?;
 
@@ -93,40 +93,42 @@ pub async fn store_actor(pool: &SqlitePool, actor: &Actor) -> Result<(), sqlx::E
 }
 
 pub async fn store_event(pool: &SqlitePool, event: &Event) -> Result<i64, sqlx::Error> {
-    let result = sqlx::query!(
+    let result = query(
         "INSERT INTO events (actor_id, kind, url, referrer, search)
          VALUES (?, ?, ?, ?, ?)
          RETURNING id",
-        event.actor_id,
-        event.kind,
-        event.url,
-        event.referrer,
-        event.search,
     )
+    .bind(event.actor_id.clone())
+    .bind(event.kind.clone())
+    .bind(event.url.clone())
+    .bind(event.referrer.clone())
+    .bind(event.search.clone())
     .fetch_one(pool)
     .await?;
 
-    Ok(result.id)
+    let id = result.get("id");
+    Ok(id)
 }
 
 pub async fn store_user_agent(
     pool: &SqlitePool,
     user_agent: &UserAgent,
 ) -> Result<i64, sqlx::Error> {
-    let result = sqlx::query!(
+    let result = query(
         "INSERT INTO user_agents (name, category, os, os_version, browser_type, version, vendor)
          VALUES (?, ?, ?, ?, ?, ?, ?)
          RETURNING id",
-        user_agent.name,
-        user_agent.category,
-        user_agent.os,
-        user_agent.os_version,
-        user_agent.browser_type,
-        user_agent.version,
-        user_agent.vendor,
     )
+    .bind(user_agent.name.clone())
+    .bind(user_agent.category.clone())
+    .bind(user_agent.os.clone())
+    .bind(user_agent.os_version.clone())
+    .bind(user_agent.browser_type.clone())
+    .bind(user_agent.version.clone())
+    .bind(user_agent.vendor.clone())
     .fetch_one(pool)
     .await?;
 
-    Ok(result.id)
+    let id = result.get("id");
+    Ok(id)
 }
