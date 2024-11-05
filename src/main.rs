@@ -1,15 +1,9 @@
-mod crypto;
-mod database;
-mod geo_locate;
 mod signal;
-mod stats;
 
 use axum::Router;
-use database::init_db_pool;
+use axum_credible::{download_geo_db, get_stats_router, init_db_pool};
 use dotenvy::dotenv;
-use geo_locate::download_geo_db;
 use signal::shutdown_signal;
-use stats::get_stats_router;
 use std::{error::Error, net::SocketAddr};
 
 #[tokio::main]

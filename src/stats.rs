@@ -169,11 +169,11 @@ async fn event_handler(
 }
 
 async fn handler(State(state): State<AppState>) -> impl IntoResponse {
-    let visitors = query_scalar!("SELECT COUNT(id) FROM actors")
+    let visitors: i64 = query_scalar("SELECT COUNT(id) FROM actors")
         .fetch_one(&state.pool)
         .await
         .unwrap();
-    let pageviews = query_scalar!("SELECT COUNT(id) FROM events")
+    let pageviews: i64 = query_scalar("SELECT COUNT(id) FROM events")
         .fetch_one(&state.pool)
         .await
         .unwrap();

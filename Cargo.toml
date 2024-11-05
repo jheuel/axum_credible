@@ -3,10 +3,11 @@ name = "axum_credible"
 version = "0.1.0"
 edition = "2021"
 authors = ["Johannes Heuel <johannes.heuel@rwth-aachen.de>"]
+description = "Simple privacy-friendly web analytics"
 license = "MIT"
 
 [dependencies]
-axum = { version = "0.7", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros"] }
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = { version = "0.15" }
 flate2 = "1.0.34"
