@@ -1,3 +1,4 @@
+use chrono::{Datelike, TimeZone};
 use flate2::read::GzDecoder;
 use maxminddb::geoip2::City;
 use maxminddb::Reader;
@@ -7,6 +8,7 @@ use std::io::copy;
 use std::net::IpAddr;
 use std::path::Path;
 use tar::Archive;
+use tokio::task::JoinHandle;
 
 pub fn geoip_lookup(
     ip: &str,
@@ -31,6 +33,41 @@ pub fn geoip_lookup(
         .and_then(|mut names| names.remove("en"))
         .map(|city| city.to_string());
     Ok((country_name, city_name))
+}
+
+pub async fn geo_db(
+    account_id: String,
+    license_key: String,
+    path: String,
+) -> Result<JoinHandle<()>, Box<dyn Error + 'static>> {
+    // run once to make sure that the database is downloaded when the server starts
+    download_geo_db(&account_id, &license_key, &path).await?;
+
+    let handle = tokio::spawn(async move {
+        let mut every_week = {
+            let now = chrono::Local::now();
+            let target = chrono::Local
+                .with_ymd_and_hms(now.year(), now.month(), now.day(), 3, 0, 0)
+                .unwrap();
+            let target = if target > now {
+                target
+            } else {
+                target + chrono::Duration::days(1)
+            } + chrono::Duration::weeks(1);
+            let duration_until_target = target.signed_duration_since(now).to_std().unwrap();
+            let start = tokio::time::Instant::now() + duration_until_target;
+            tokio::time::interval_at(start, std::time::Duration::from_secs(60 * 60 * 24 * 7))
+        };
+        loop {
+            every_week.tick().await;
+            let new_path = format!("{}.tmp", &path);
+            download_geo_db(&account_id, &license_key, &new_path)
+                .await
+                .expect("failed to download GeoLite2 database");
+            std::fs::rename(&new_path, &path).expect("failed to rename file");
+        }
+    });
+    Ok(handle)
 }
 
 pub async fn download_geo_db(

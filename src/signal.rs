@@ -1,4 +1,4 @@
-pub async fn shutdown_signal(key_rotate_handle: tokio::task::AbortHandle) {
+pub async fn shutdown_signal(handles: Vec<tokio::task::AbortHandle>) {
     let ctrl_c = async {
         tokio::signal::ctrl_c()
             .await
@@ -17,7 +17,9 @@ pub async fn shutdown_signal(key_rotate_handle: tokio::task::AbortHandle) {
     let terminate = std::future::pending::<()>();
 
     let abort = move || {
-        key_rotate_handle.abort();
+        for handle in handles {
+            handle.abort();
+        }
     };
 
     tokio::select! {

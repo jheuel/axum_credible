@@ -1,7 +1,7 @@
 mod signal;
 
 use axum::Router;
-use axum_credible::{download_geo_db, get_stats_router, init_db_pool};
+use axum_credible::{geo_db, get_stats_router, init_db_pool};
 use dotenvy::dotenv;
 use signal::shutdown_signal;
 use std::{error::Error, net::SocketAddr};
@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     let pool = init_db_pool(&db_url).await?;
 
     // Download the GeoLite2 database
-    download_geo_db(&geo_db_account_id, &geo_db_license_key, &geo_db_path).await?;
+    let geo_db_handle = geo_db(geo_db_account_id, geo_db_license_key, geo_db_path.clone()).await?;
 
     // Get the stats router and key rotation handle
     let (stats_router, key_rotate_handle) = get_stats_router(&pool, &analytics_key, &geo_db_path);
@@ -40,7 +40,10 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
     )
-    .with_graceful_shutdown(shutdown_signal(key_rotate_handle.abort_handle()))
+    .with_graceful_shutdown(shutdown_signal(vec![
+        key_rotate_handle.abort_handle(),
+        geo_db_handle.abort_handle(),
+    ]))
     .await?;
     Ok(())
 }
