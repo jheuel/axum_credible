@@ -60,11 +60,13 @@ pub async fn geo_db(
         };
         loop {
             every_week.tick().await;
+            info!("Updating GeoLite2 database");
             let new_path = format!("{}.tmp", &path);
             download_geo_db(&account_id, &license_key, &new_path)
                 .await
                 .expect("failed to download GeoLite2 database");
             std::fs::rename(&new_path, &path).expect("failed to rename file");
+            info!("GeoLite2 database updated");
         }
     });
     Ok(handle)
