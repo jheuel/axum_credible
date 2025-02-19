@@ -1,4 +1,4 @@
-use rand_core::{OsRng, RngCore};
+use rand_core::{OsRng, TryRngCore};
 use std::error::Error;
 
 pub fn get_cryptographic_key(key_file: &str) -> Result<Vec<u8>, Box<dyn Error>> {
@@ -19,6 +19,8 @@ pub fn rotate_cryptographic_key(key_file: &str) -> Result<Vec<u8>, Box<dyn Error
 
 pub fn generate_cryptographic_key() -> [u8; 64] {
     let mut random_bits = [0u8; 64];
-    OsRng.fill_bytes(&mut random_bits);
+    OsRng
+        .try_fill_bytes(&mut random_bits)
+        .expect("Failed to generate random bits");
     random_bits
 }
