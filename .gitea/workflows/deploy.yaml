@@ -1,4 +1,6 @@
 ---
+# yamllint disable rule:line-length
+
 name: deploy
 
 on:  # yamllint disable-line rule:truthy
@@ -14,19 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25  # v3
 
       - name: Set up Docker BuildX
-        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca  # v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567  # v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25  # v5
         with:
           platforms: |
             linux/amd64
