@@ -1,6 +1,6 @@
 [package]
 name = "axum_credible"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Johannes Heuel <johannes.heuel@rwth-aachen.de>"]
 description = "Simple privacy-friendly web analytics"
