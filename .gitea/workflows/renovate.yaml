@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
           env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN)$"
         env:
-          LOG_LEVEL: "debug"
+          LOG_LEVEL: "info"
           GITHUB_COM_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
           RENOVATE_PLATFORM: "gitea"
           RENOVATE_GIT_AUTHOR: "Renovate Bot <renovate@boosted.science>"
