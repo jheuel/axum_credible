@@ -9,5 +9,16 @@
         "docker:pinDigests",
         "preview:dockerCompose",
         "preview:dockerVersions"
+    ],
+    "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "minor",
+                "patch",
+                "pin",
+                "digest"
+            ],
+            "automerge": true
+        }
     ]
 }
