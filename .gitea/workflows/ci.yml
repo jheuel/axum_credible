@@ -27,38 +27,59 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
-      - uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8  # v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           target: wasm32-unknown-unknown
           toolchain: nightly
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3  # v2
+        with:
+          cache-on-failure: true
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --verbose --locked
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
-      - uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8  # v1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: wasm32-unknown-unknown
+          toolchain: nightly
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3  # v2
+        with:
+          cache-on-failure: true
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --verbose --locked
 
   clippy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
-      - uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8  # v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          target: wasm32-unknown-unknown
+          toolchain: nightly
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3  # v2
+        with:
+          cache-on-failure: true
+      - name: Install clippy
+        run: rustup component add clippy
       - name: Run clippy
-        run: cargo clippy --all-features
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
-      - uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8  # v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          target: wasm32-unknown-unknown
+          toolchain: nightly
+      - uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3  # v2
+        with:
+          cache-on-failure: true
+      - name: Install rustfmt
+        run: rustup component add rustfmt
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5
         with:
           python-version: '3.x'
