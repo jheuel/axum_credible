@@ -1,5 +1,6 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "timezone": "Europe/Berlin",
     "extends": [
         "config:recommended",
         "helpers:pinGitHubActionDigests",
@@ -8,7 +9,8 @@
         ":dependencyDashboard",
         "docker:pinDigests",
         "preview:dockerCompose",
-        "preview:dockerVersions"
+        "preview:dockerVersions",
+        "schedule:automergeEarlyMondays"
     ],
     "packageRules": [
         {
