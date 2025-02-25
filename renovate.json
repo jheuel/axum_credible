@@ -9,8 +9,7 @@
         ":dependencyDashboard",
         "docker:pinDigests",
         "preview:dockerCompose",
-        "preview:dockerVersions",
-        "schedule:automergeEarlyMondays"
+        "preview:dockerVersions"
     ],
     "packageRules": [
         {
