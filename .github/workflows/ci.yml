@@ -6,9 +6,6 @@ name: tests
 on:  # yamllint disable-line rule:truthy
   push:
 
-paths-ignore:
-  - "README.md"
-
 env:
   CARGO_TERM_COLOR: always
 

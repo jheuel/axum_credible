@@ -5,7 +5,7 @@ name: renovate
 
 on:  # yamllint disable-line rule:truthy
   schedule:
-    - cron: "@daily"
+    - cron: 0 0 * * *
   push:
     branches:
       - main
@@ -23,10 +23,5 @@ jobs:
           env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN)$"
         env:
           LOG_LEVEL: "info"
-          GITHUB_COM_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
-          RENOVATE_PLATFORM: "gitea"
-          RENOVATE_GIT_AUTHOR: "Renovate Bot <renovate@boosted.science>"
-          RENOVATE_GIT_EMAIL: "renovate@boosted.science"
-          RENOVATE_ENDPOINT: "https://gitea.jheuel.boosted.science/api/v1/"
-          RENOVATE_AUTODISCOVER: "true"
-          RENOVATE_OPTIMIZE_FOR_DISABLED: "true"
+          RENOVATE_PLATFORM: "github"
+          RENOVATE_REPOSITORIES: jheuel/axum_credible
