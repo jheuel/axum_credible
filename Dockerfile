@@ -5,7 +5,7 @@ COPY . .
 RUN cargo build --release
 
 # release image
-FROM debian:stable-slim@sha256:5484adc33b4c352c5a9f4c4ae295fc49aed1cb54a7a0712a1b29674fb6f4f10f
+FROM debian:stable-slim@sha256:70b337e820bf51d399fa5bfa96a0066fbf22f3aa2c3307e2401b91e2207ac3c3
 WORKDIR /app
 COPY --from=builder /axum_credible/target/release/axum_credible /app/
 CMD ["/app/axum_credible"]
