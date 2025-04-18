@@ -5,7 +5,7 @@ name: renovate
 
 on:  # yamllint disable-line rule:truthy
   schedule:
-    - cron: 0 */6 * * 1-5
+    - cron: 0 0 * * 1-5
   push:
     branches:
       - main
