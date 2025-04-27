@@ -17,7 +17,7 @@ pub fn geoip_lookup(
     let reader = Reader::open_readfile(db_path)?;
     let ip: IpAddr = ip.parse()?;
 
-    let Ok(lookup_city) = reader.lookup::<City<'_>>(ip) else {
+    let Ok(Some(lookup_city)) = reader.lookup::<City<'_>>(ip) else {
         return Err("failed to lookup IP address")?;
     };
 
