@@ -83,7 +83,7 @@ async fn get_user_agent_id(
 
 pub async fn stats_handler() -> impl IntoResponse {
     let one_year_in_secs = 60 * 60 * 24 * 365;
-    let cache_control_header = format!("public, max-age={}", one_year_in_secs);
+    let cache_control_header = format!("public, max-age={one_year_in_secs}");
     let headers = HeaderMap::from_iter(vec![
         (
             http::header::CONTENT_TYPE,
