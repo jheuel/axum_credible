@@ -16,8 +16,28 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
     let db_url = std::env::var("DATABASE_URL").unwrap_or("sqlite:///data/stats.db".to_string());
     let geo_db_path =
         std::env::var("GEO_DB_PATH").unwrap_or("/data/GeoLite2-City.mmdb".to_string());
-    let geo_db_account_id = std::env::var("GEO_DB_ACCOUNT_ID").unwrap();
-    let geo_db_license_key = std::env::var("GEO_DB_LICENSE_KEY").unwrap();
+    let geo_db_account_id = if let Ok(geo_db_account_id) = std::env::var("GEO_DB_ACCOUNT_ID") {
+        geo_db_account_id
+    } else {
+        let Ok(geo_db_account_id_file) = std::env::var("GEO_DB_ACCOUNT_ID_FILE") else {
+            panic!("Either GEO_DB_ACCOUNT_ID or GEO_DB_ACCOUNT_ID_FILE must be set");
+        };
+        std::fs::read_to_string(geo_db_account_id_file)
+            .expect("Failed to read GEO_DB_ACCOUNT_ID_FILE")
+            .trim()
+            .to_string()
+    };
+    let geo_db_license_key = if let Ok(geo_db_license_key) = std::env::var("GEO_DB_LICENSE_KEY") {
+        geo_db_license_key
+    } else {
+        let Ok(geo_db_license_key_file) = std::env::var("GEO_DB_LICENSE_KEY_FILE") else {
+            panic!("Either GEO_DB_LICENSE_KEY or GEO_DB_LICENSE_KEY_FILE must be set");
+        };
+        std::fs::read_to_string(geo_db_license_key_file)
+            .expect("Failed to read GEO_DB_LICENSE_KEY_FILE")
+            .trim()
+            .to_string()
+    };
 
     // Initialize the database pool
     let pool = init_db_pool(&db_url).await?;
