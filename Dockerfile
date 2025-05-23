@@ -1,5 +1,5 @@
 # build image
-FROM rust:latest@sha256:c5511e7b18c038386e7e1a6580493ab125a8e9474c9717b38fe724e15448aa1e AS builder
+FROM rust:latest@sha256:25038aa450210c53cf05dbf7b256e1df1ee650a58bb46cbc7d6fa79c1d98d083 AS builder
 WORKDIR /axum_credible
 COPY . .
 RUN cargo build --release
