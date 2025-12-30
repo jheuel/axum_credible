@@ -1,11 +1,11 @@
 # build image
-FROM rust:latest@sha256:48851a839d6a67370c9dbe0e709bedc138e3e404b161c5233aedcf2b717366e4 AS builder
+FROM rust:latest@sha256:910b9dc6597a3ef16458dc1d20520714d3526ddb038749b8d87334798064d672 AS builder
 WORKDIR /axum_credible
 COPY . .
 RUN cargo build --release
 
 # release image
-FROM debian:stable-slim@sha256:1c25564b03942d874bf6a2b71f2062b71af8bc1475aa873c523e6f7c8fa29e60
+FROM debian:stable-slim@sha256:449673e1239be6fdc89616f926abb87f360c280c3bb7ca3591694564359695fa
 WORKDIR /app
 COPY --from=builder /axum_credible/target/release/axum_credible /app/
 CMD ["/app/axum_credible"]
